@@ -1,0 +1,7 @@
+__pycache__
+
+example/app/dev/*
+example/app/staging/*
+example/app/prod/*
+example/pipeline/shared/*
+!terraform.tfvars
