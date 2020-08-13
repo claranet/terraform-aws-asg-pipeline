@@ -19,9 +19,12 @@ def lambda_handler(event, context):
     print(f"InstanceId={instance_id} Instance has launched")
 
     # Fetch the target group details and loop over them.
-    response = elb_client.describe_target_groups(TargetGroupArns=TARGET_GROUP_ARNS)
-    for target_group in response["TargetGroups"]:
-
+    if TARGET_GROUP_ARNS:
+        response = elb_client.describe_target_groups(TargetGroupArns=TARGET_GROUP_ARNS)
+        target_groups = response["TargetGroups"]
+    else:
+        target_groups = []
+    for target_group in target_groups:
         # Wait until the target group thinks the instance is healthy.
         # Wait for so long that the Lambda function will time out before
         # this ever does. If it times out, the function will be retried
