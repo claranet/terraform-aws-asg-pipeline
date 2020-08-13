@@ -9,7 +9,7 @@ output "creds" {
 output "location" {
   description = "Location details for uploading to this bucket."
   value = {
-    bucket = aws_s3_bucket.this.bucket
+    bucket = aws_s3_bucket.this.id
     key    = var.key
   }
 }
