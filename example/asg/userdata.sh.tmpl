@@ -1,0 +1,39 @@
+#!/bin/bash
+set -xeuo pipefail
+
+# Ensure packages packages are installed.
+yum install -y awscli httpd unzip
+
+# Get instance details.
+instance_id=$(curl -sS http://169.254.169.254/latest/meta-data/instance-id)
+region=$(curl -sS http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/.$//')
+app_version_id=$(aws ec2 describe-tags --region $region --filters "Name=resource-id,Values=$instance_id" --query "Tags[?Key=='AppVersionId'].Value" --output text)
+asg_name=$(aws ec2 describe-tags --region $region --filters "Name=resource-id,Values=$instance_id" --query "Tags[?Key=='aws:autoscaling:groupName'].Value" --output text)
+
+# Download and extract web site.
+aws s3api get-object --bucket ${app_location.bucket} --key ${app_location.key} --version-id $app_version_id /tmp/app.zip
+unzip /tmp/app.zip -d /var/www/html
+
+# Append debug details to the web site.
+image_name=$(aws ec2 describe-tags --region $region --filters "Name=resource-id,Values=$instance_id" --query "Tags[?Key=='ImageName'].Value" --output text)
+image_id=$(aws ec2 describe-tags --region $region --filters "Name=resource-id,Values=$instance_id" --query "Tags[?Key=='ImageId'].Value" --output text)
+instance_image_id=$(aws ec2 describe-instances --region $region --instance-id $instance_id  --query "Reservations[0].Instances[0].ImageId" --output text)
+if [[ "$image_id" != "$instance_image_id" ]]; then echo "different image id!"; exit 1; fi
+echo "
+ImageName: $image_name
+ImageId: $image_id" >> /var/www/html/index.html
+
+# Start the web server and wait for it.
+systemctl start httpd
+until curl -sS http://127.0.0.1/; do
+    printf '.'
+    sleep 1
+done
+
+# Complete the lifecycle hook action to put the instance in service.
+aws autoscaling complete-lifecycle-action \
+    --region $region \
+    --auto-scaling-group-name $asg_name \
+    --lifecycle-hook-name ${lifecycle_hook_name} \
+    --instance-id $instance_id \
+    --lifecycle-action-result CONTINUE

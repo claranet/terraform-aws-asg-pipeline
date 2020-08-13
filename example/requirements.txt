@@ -1,2 +1,0 @@
-boto-source-profile-mfa==0.0.11
-pretf[aws]==0.7.0
