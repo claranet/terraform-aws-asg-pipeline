@@ -10,6 +10,12 @@ variable "bucket_prefix" {
   default     = null
 }
 
+variable "force_destroy" {
+  description = "Allow 'terraform destroy' to delete objects when deleting the bucket."
+  type        = bool
+  default     = false
+}
+
 variable "key" {
   description = "The key of the S3 object. A user will be created with permission to upload to this location. The pipeline should use this location as its source."
   type        = string

@@ -1,8 +1,8 @@
 resource "aws_s3_bucket" "this" {
+  acl           = "private"
   bucket        = var.bucket
   bucket_prefix = var.bucket_prefix
-
-  acl = "private"
+  force_destroy = var.force_destroy
 
   versioning {
     enabled = true
