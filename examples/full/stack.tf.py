@@ -42,7 +42,7 @@ def pretf_blocks(var):
     yield terraform_backend_s3(
         bucket="terraform-aws-asg-codepipeline-tfstate",
         dynamodb_table="terraform-aws-asg-codepipeline-tfstate",
-        key="terraform.tfstate",
+        key="full.tfstate",
         profile="claranetuk-thirdplaygroundRW",
         region=var.aws_region,
     )

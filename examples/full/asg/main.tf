@@ -74,7 +74,7 @@ resource "aws_iam_role_policy" "complete_lifecyle_action" {
 }
 
 module "asg" {
-  source = "../../modules/asg"
+  source = "../../../modules/asg"
 
   ami_pipeline            = true
   app_pipeline            = true
