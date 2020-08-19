@@ -17,7 +17,7 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<String>
 %{ else ~}
   ImageId:
-    Value: "${image_id}"
+    Type: String
 %{ endif ~}
 
 Resources:

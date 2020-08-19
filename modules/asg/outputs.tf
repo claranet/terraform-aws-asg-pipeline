@@ -8,7 +8,7 @@ output "app_location" {
 
 output "asg_name" {
   description = "The Auto Scaling Group name."
-  value       = lookup(aws_cloudformation_stack.this.outputs, "AutoScalingGroupName", null)
+  value       = aws_cloudformation_stack.this.outputs.AutoScalingGroupName
 }
 
 output "pipeline_target" {

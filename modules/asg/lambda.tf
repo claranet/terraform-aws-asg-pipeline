@@ -2,7 +2,7 @@
 # to return dynamic parameter values.
 
 locals {
-  default_ami_ssm_parameter = "/aws/service/ami-amazon-linux-latest/amzn-ami-hvm-x86_64-ebs"
+  default_ami_ssm_parameter = "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-ebs"
 }
 
 module "cfn_params_lambda" {

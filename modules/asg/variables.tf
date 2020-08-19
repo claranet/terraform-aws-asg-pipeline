@@ -62,16 +62,19 @@ variable "min_size" {
 variable "pipeline_aws_account_id" {
   description = "The AWS account containing the pipeline."
   type        = string
+  default     = null
 }
 
 variable "pipeline_auto_deploy" {
   description = "Whether the pipeline should automatically deploy to this auto scaling group (true) or wait for approval first (false)."
   type        = bool
+  default     = null
 }
 
 variable "pipeline_target_name" {
   description = "The name to use in the pipeline to describe this auto scaling group, e.g. 'staging'."
   type        = string
+  default     = null
 }
 
 variable "rolling_update_policy" {

@@ -46,6 +46,7 @@ app:
 	AWS_ACCESS_KEY_ID=$(app_aws_access_key_id) AWS_SECRET_ACCESS_KEY=$(app_aws_secret_access_key) aws s3 cp app.zip s3://$(app_bucket)/$(app_key) --metadata '{"codepipeline-artifact-revision-summary": "$(date)"}'
 	rm app.zip index.html
 
+.PHONY: vpc
 vpc:
 	env $$(awsp bashton-playgroundRW) aws ec2 create-default-vpc --region eu-west-1
 	env $$(awsp bashton-secondplaygroundRW) aws ec2 create-default-vpc --region eu-west-1
