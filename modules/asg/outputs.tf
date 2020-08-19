@@ -1,25 +1,25 @@
 output "app_location" {
   description = "The S3 location where the pipeline will put app release zip files."
   value = {
-    bucket = aws_s3_bucket.app.id
-    key    = "app.zip"
+    bucket = var.app_pipeline ? aws_s3_bucket.app[0].id : null
+    key    = var.app_pipeline ? "app.zip" : null
   }
 }
 
 output "asg_name" {
   description = "The Auto Scaling Group name."
-  value       = lookup(aws_cloudformation_stack.this.outputs, "AutoScalingGroupName", "")
+  value       = lookup(aws_cloudformation_stack.this.outputs, "AutoScalingGroupName", null)
 }
 
 output "pipeline_target" {
   description = "Information required by a pipeline to deploy to this Auto Scaling Group."
-  value = {
+  value = var.app_pipeline || var.ami_pipeline ? {
     app_location = {
-      bucket = aws_s3_bucket.app.id
-      key    = "app.zip"
+      bucket = var.app_pipeline ? aws_s3_bucket.app[0].id : null
+      key    = var.app_pipeline ? "app.zip" : null
     }
     assume_role = {
-      arn = aws_iam_role.pipeline.arn
+      arn = aws_iam_role.pipeline[0].arn
     }
     auto_deploy = var.pipeline_auto_deploy
     cfn_role = {
@@ -33,21 +33,21 @@ output "pipeline_target" {
     name = var.pipeline_target_name
     ssm_params = {
       app_version_id = {
-        arn  = aws_ssm_parameter.app_version_id.arn
-        name = aws_ssm_parameter.app_version_id.name
+        arn  = var.app_pipeline ? aws_ssm_parameter.app_version_id[0].arn : null
+        name = var.app_pipeline ? aws_ssm_parameter.app_version_id[0].name : null
       }
       app_version_name = {
-        arn  = aws_ssm_parameter.app_version_name.arn
-        name = aws_ssm_parameter.app_version_name.name
+        arn  = var.app_pipeline ? aws_ssm_parameter.app_version_name[0].arn : null
+        name = var.app_pipeline ? aws_ssm_parameter.app_version_name[0].name : null
       }
       image_id = {
-        arn  = aws_ssm_parameter.image_id.arn
-        name = aws_ssm_parameter.image_id.name
+        arn  = var.ami_pipeline ? aws_ssm_parameter.image_id[0].arn : null
+        name = var.ami_pipeline ? aws_ssm_parameter.image_id[0].name : null
       }
       image_name = {
-        arn  = aws_ssm_parameter.image_name.arn
-        name = aws_ssm_parameter.image_name.name
+        arn  = var.ami_pipeline ? aws_ssm_parameter.image_name[0].arn : null
+        name = var.ami_pipeline ? aws_ssm_parameter.image_name[0].name : null
       }
     }
-  }
+  } : null
 }

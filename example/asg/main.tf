@@ -76,16 +76,18 @@ resource "aws_iam_role_policy" "complete_lifecyle_action" {
 module "asg" {
   source = "../../modules/asg"
 
-  name                    = var.name
+  ami_pipeline            = true
+  app_pipeline            = true
   instance_profile_arn    = module.instance_profile.profile_arn
   instance_type           = "t3a.nano"
-  min_size                = 1
   max_size                = 2
+  min_size                = 1
+  name                    = var.name
   pipeline_auto_deploy    = var.pipeline_auto_deploy
   pipeline_aws_account_id = var.pipeline_aws_account_id
   pipeline_target_name    = var.name
-  target_group_arns       = [aws_alb_target_group.this.arn]
   security_group_ids      = [aws_security_group.this.id]
+  target_group_arns       = [aws_alb_target_group.this.arn]
 
   lifecycle_hooks = [{
     DefaultResult       = "ABANDON"

@@ -2,6 +2,8 @@
 # The pipeline will put app releases here during deployments.
 
 resource "aws_s3_bucket" "app" {
+  count = var.app_pipeline ? 1 : 0
+
   acl           = "private"
   bucket_prefix = "${var.name}-app-"
   force_destroy = true

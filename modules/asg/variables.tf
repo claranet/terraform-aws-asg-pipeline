@@ -3,14 +3,16 @@ variable "name" {
   type        = string
 }
 
-variable "app_version_id" {
-  description = "Initial app version to use. Will be ignored after CodePipeline deploys a new version."
-  default     = "dummy"
+variable "ami_pipeline" {
+  description = "Enable this to use AMI deployments in conjunction with the pipeline module."
+  type        = bool
+  default     = false
 }
 
-variable "app_version_name" {
-  description = "Initial app version to use. Will be ignored after CodePipeline deploys a new version."
-  default     = "dummy"
+variable "app_pipeline" {
+  description = "Enable this to use app deployments in conjunction with the pipeline module."
+  type        = bool
+  default     = false
 }
 
 variable "detailed_monitoring" {
@@ -20,13 +22,9 @@ variable "detailed_monitoring" {
 }
 
 variable "image_id" {
-  description = "Initial AMI to use. Will be ignored after CodePipeline deploys a new version."
-  default     = "ami-00b5b04854bca6596"
-}
-
-variable "image_name" {
-  description = "Initial AMI to use. Will be ignored after CodePipeline deploys a new version."
-  default     = "dummy"
+  description = "AMI to use if the AMI pipeline is disabled."
+  type        = string
+  default     = ""
 }
 
 variable "instance_profile_arn" {

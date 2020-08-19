@@ -18,6 +18,8 @@ The following diagram shows how we have used this module to handle both AMI and 
 
 The `asg` module creates an Auto Scaling Group using CloudFormation. Don't worry, it's still managed by Terraform  in the same way as other AWS resources. CodePipeline natively supports performing CloudFormation stack updates, so this is the ideal way to manage the Auto Scaling Group and its related resources.
 
+You must set `ami_pipeline = true` and/or `app_pipeline = true` when using this module, if you intend to create deployment pipelines. This module can still be used to create and manage auto scaling groups without pipelines, and still have the benefits of CloudFormation's rolling updates when changing properties such as `image_id`, `instance_type`, and `user_data`.
+
 This module outputs a `pipeline_target` value to be passed into the `pipeline` module.
 
 ## S3 source module
@@ -137,18 +139,6 @@ Remediation:
 * The instance will become in-service/EC2-healthy, then the load balancer will start checking its health, and then soon afterwards it will become ELB-healthy.
 * There is still a small window of time where the instance is EC2-healthy and ELB-unhealthy for this issue to occur. This window of time will be based on the Target Group health check interval and healthy threshold.
 * This is a big improvement for instances that take a long time to provision, but it is not perfect.
-
-### Rolling updates can scale down
-
-This module sets the CloudFormation rolling update policy's `MinInstancesInService` to `min(var.min_size, var.max_size - 1))` unless a value is provided in the rolling update policy. If the auto scaling group is scaled above this value, then a deployment will temporarily reduce the number of running instances.
-
-To avoid this, specify a higher number (up to the maximum ASG size) in the rolling update policy, for example:
-
-```hcl
-rolling_update_policy = { MinInstancesInService = 10 }
-```
-
-We plan to fix this using a CloudFormation custom resource Lambda function that queries the current `desired` number of instances from the Auto Scaling Group and uses that for `MinInstancesInService = min(asg_desired, asg_max - 1)`.
 
 ## Playbooks
 

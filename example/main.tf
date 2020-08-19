@@ -72,84 +72,17 @@ module "asg_prod" {
 
 # AMI and app pipelines in the management account.
 
-# module "pipelines" {
-#   source = "./pipelines"
+module "pipelines" {
+  source = "./pipelines"
 
-#   name = "asg-pipeline"
-#   targets = [
-#     module.asg_dev.pipeline_target,
-#     module.asg_staging.pipeline_target,
-#     module.asg_prod.pipeline_target,
-#   ]
-# }
+  providers = {
+    aws = aws.management
+  }
 
-locals {
-  pipeline_targets = [
+  name = "asg-pipeline"
+  targets = [
     module.asg_dev.pipeline_target,
     module.asg_staging.pipeline_target,
     module.asg_prod.pipeline_target,
   ]
-}
-
-module "pipeline_kms_key" {
-  source = "../modules/pipeline-kms-key"
-
-  providers = {
-    aws = aws.management
-  }
-
-  name    = "asg-pipeline"
-  targets = local.pipeline_targets
-}
-
-module "ami_builds" {
-  source = "../modules/s3-source"
-
-  providers = {
-    aws = aws.management
-  }
-
-  bucket_prefix = "asg-builds-"
-  force_destroy = true
-  key           = "ami.zip"
-}
-
-module "ami_pipeline" {
-  source = "../modules/pipeline"
-
-  providers = {
-    aws = aws.management
-  }
-
-  name            = "asg-pipeline-ami"
-  kms_key_arn     = module.pipeline_kms_key.arn
-  targets         = local.pipeline_targets
-  source_location = module.ami_builds.location
-  type            = "ami"
-}
-
-module "app_builds" {
-  source = "../modules/s3-source"
-
-  providers = {
-    aws = aws.management
-  }
-
-  bucket_prefix = "app-builds-"
-  force_destroy = true
-  key           = "app.zip"
-}
-
-module "app_pipeline" {
-  source = "../modules/pipeline"
-
-  providers = {
-    aws = aws.management
-  }
-
-  name            = "asg-pipeline-app"
-  kms_key_arn     = module.pipeline_kms_key.arn
-  targets         = local.pipeline_targets
-  source_location = module.app_builds.location
-  type            = "app"
 }

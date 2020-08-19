@@ -4,16 +4,36 @@
 # ends up as a dollar-brace to be parsed by CloudFormation.
 
 Parameters:
+%{ if app_pipeline ~}
   AppVersionId:
     Type: AWS::SSM::Parameter::Value<String>
   AppVersionName:
     Type: AWS::SSM::Parameter::Value<String>
+%{ endif ~}
+%{ if ami_pipeline ~}
   ImageId:
     Type: AWS::SSM::Parameter::Value<String>
   ImageName:
     Type: AWS::SSM::Parameter::Value<String>
+%{ else ~}
+  ImageId:
+    Value: "${image_id}"
+%{ endif ~}
 
 Resources:
+
+  Params:
+    Type: Custom::Params
+    Properties:
+%{ if app_pipeline ~}
+      AppVersionId: !Ref AppVersionId
+%{ endif ~}
+      ImageId: !Ref ImageId
+      MaxSize: ${max_size}
+      MinInstancesInService: ${rolling_update_policy.MinInstancesInService}
+      MinSize: ${min_size}
+      ServiceToken: ${cfn_params_lambda_arn}
+
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
@@ -43,8 +63,8 @@ Resources:
         - GroupStandbyCapacity
         - GroupTerminatingCapacity
         - GroupTotalCapacity
-      MinSize: ${min_size}
-      MaxSize: ${max_size}
+      MinSize: !GetAtt Params.MinSize
+      MaxSize: !GetAtt Params.MaxSize
       Tags:
       - Key: AccessControl
         Value: "${access_control}"
@@ -61,7 +81,7 @@ Resources:
     UpdatePolicy:
       AutoScalingRollingUpdate:
         MaxBatchSize: ${rolling_update_policy.MaxBatchSize}
-        MinInstancesInService: ${rolling_update_policy.MinInstancesInService}
+        MinInstancesInService: !GetAtt Params.MinInstancesInService
         MinSuccessfulInstancesPercent: ${rolling_update_policy.MinSuccessfulInstancesPercent}
         PauseTime: ${rolling_update_policy.PauseTime}
         SuspendProcesses:
@@ -71,13 +91,14 @@ Resources:
         - AlarmNotification
         - ScheduledActions
         WaitOnResourceSignals: true
+
   LaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
     Properties:
       LaunchTemplateData:
         IamInstanceProfile:
           Arn: "${instance_profile_arn}"
-        ImageId: !Ref ImageId
+        ImageId: !GetAtt Params.ImageId
         InstanceType: "${instance_type}"
 %{ if key_name != "" ~}
         KeyName: "${key_name}"
@@ -92,14 +113,18 @@ Resources:
           Tags:
           - Key: AccessControl
             Value: "${access_control}"
+%{ if app_pipeline ~}
           - Key: AppVersionId
             Value: !Ref AppVersionId
           - Key: AppVersionName
             Value: !Ref AppVersionName
+%{ endif ~}
           - Key: ImageId
             Value: !Ref ImageId
+%{ if ami_pipeline ~}
           - Key: ImageName
             Value: !Ref ImageName
+%{ endif ~}
           - Key: Name
             Value: "${name}"
 %{ for key, value in tags ~}
@@ -112,7 +137,9 @@ Resources:
       LaunchTemplateName: "${name}"
 
 Outputs:
+%{ if app_pipeline ~}
   AppVersionId:
     Value: !Ref AppVersionId
+%{ endif ~}
   AutoScalingGroupName:
     Value: !Ref AutoScalingGroup

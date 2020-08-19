@@ -16,15 +16,24 @@ data "aws_iam_policy_document" "cloudformation_assume_role" {
 data "aws_iam_policy_document" "cloudformation" {
   # Allow reading the input parameters from SSM.
 
+  dynamic "statement" {
+    for_each = toset(range(var.ami_pipeline || var.app_pipeline ? 1 : 0))
+    content {
+      sid     = "ReadParameters"
+      actions = ["ssm:GetParameters"]
+      resources = concat(
+        aws_ssm_parameter.app_version_id[*].arn,
+        aws_ssm_parameter.app_version_name[*].arn,
+        aws_ssm_parameter.image_id[*].arn,
+        aws_ssm_parameter.image_name[*].arn,
+      )
+    }
+  }
+
   statement {
-    sid     = "ReadParameters"
-    actions = ["ssm:GetParameters"]
-    resources = [
-      aws_ssm_parameter.app_version_id.arn,
-      aws_ssm_parameter.app_version_name.arn,
-      aws_ssm_parameter.image_id.arn,
-      aws_ssm_parameter.image_name.arn,
-    ]
+    sid       = "InvokeParamsLambda"
+    actions   = ["lambda:Invoke*"]
+    resources = [module.cfn_params_lambda.arn]
   }
 
   # Allow describing various resources.

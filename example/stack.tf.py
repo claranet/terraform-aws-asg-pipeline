@@ -1,3 +1,14 @@
+"""
+This file is used by Pretf to generate stack.tf.json.
+
+The reason for using Pretf is that our AWS profiles have MFA prompts,
+which is not supported by Terraform. We're using multiple AWS profiles
+in this example to manage resources in multiple AWS accounts, so we can't
+use simple environment variables for AWS credentials. Pretf solves this
+and also manages the S3 backend resources.
+
+"""
+
 from pretf.api import block
 from pretf.aws import provider_aws, terraform_backend_s3
 
