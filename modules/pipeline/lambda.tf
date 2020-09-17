@@ -1,6 +1,6 @@
 module "prepare_ami_deployment_lambda" {
   source  = "raymondbutcher/lambda-builder/aws"
-  version = "1.0.2"
+  version = "1.1.0"
 
   enabled = var.type == "ami"
 
@@ -24,7 +24,7 @@ module "prepare_ami_deployment_lambda" {
 
 module "prepare_app_deployment_lambda" {
   source  = "raymondbutcher/lambda-builder/aws"
-  version = "1.0.2"
+  version = "1.1.0"
 
   enabled = var.type == "app"
 
@@ -48,7 +48,7 @@ module "prepare_app_deployment_lambda" {
 
 module "cleanup_app_deployment_lambda" {
   source  = "raymondbutcher/lambda-builder/aws"
-  version = "1.0.2"
+  version = "1.1.0"
 
   enabled = var.type == "app"
 

@@ -7,7 +7,7 @@ locals {
 
 module "cfn_params_lambda" {
   source  = "raymondbutcher/lambda-builder/aws"
-  version = "1.0.2"
+  version = "1.1.0"
 
   function_name = "${var.name}-cfn-params"
   handler       = "lambda.lambda_handler"
@@ -66,7 +66,7 @@ locals {
 
 module "cfn_signal_lambda" {
   source  = "raymondbutcher/lambda-builder/aws"
-  version = "1.0.2"
+  version = "1.1.0"
 
   function_name = "${var.name}-cfn-signal"
   handler       = "lambda.lambda_handler"
