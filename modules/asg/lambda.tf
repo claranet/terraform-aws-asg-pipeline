@@ -50,17 +50,6 @@ data "aws_iam_policy_document" "cfn_params_lambda" {
   }
 }
 
-resource "time_sleep" "cfn_params_lambda" {
-  create_duration = "120s" # because CFN sometimes calls Lambda before it's ready and it breaks
-  triggers = {
-    arn = module.cfn_params_lambda.arn
-  }
-}
-
-locals {
-  cfn_params_lambda_arn = time_sleep.cfn_params_lambda.triggers["arn"]
-}
-
 # Create a Lambda function to tell CloudFormation when an auto
 # scaling group instance is healthy according to its target groups.
 

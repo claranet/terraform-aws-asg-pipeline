@@ -22,7 +22,7 @@ resource "aws_cloudformation_stack" "this" {
     access_control        = random_string.access_control.result
     ami_pipeline          = var.ami_pipeline
     app_pipeline          = var.app_pipeline
-    cfn_params_lambda_arn = local.cfn_params_lambda_arn
+    cfn_params_lambda_arn = module.cfn_params_lambda.arn
     detailed_monitoring   = var.detailed_monitoring
     image_id              = var.image_id
     instance_profile_arn  = var.instance_profile_arn
