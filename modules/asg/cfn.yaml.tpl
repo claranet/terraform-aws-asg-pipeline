@@ -19,6 +19,8 @@ Parameters:
   ImageId:
     Type: String
 %{ endif ~}
+  TemplateHash:
+    Type: String
 
 Resources:
 
@@ -135,6 +137,25 @@ Resources:
         UserData: ${base64encode(user_data)}
 %{ endif ~}
       LaunchTemplateName: "${name}"
+
+  Wait:
+    Type: Custom::Wait
+    DependsOn:
+    - AutoScalingGroup
+    - LaunchTemplate
+    Properties:
+%{ if app_pipeline ~}
+      AppVersionId: !Ref AppVersionId
+      AppVersionName: !Ref AppVersionName
+%{ endif ~}
+      AutoScalingGroupName: !Ref AutoScalingGroup
+      ImageId: !Ref ImageId
+%{ if ami_pipeline ~}
+      ImageName: !Ref ImageName
+%{ endif ~}
+      LaunchTemplate: !Ref LaunchTemplate
+      ServiceToken: ${cfn_wait_lambda_arn}
+      TemplateHash: !Ref TemplateHash
 
 Outputs:
 %{ if app_pipeline ~}

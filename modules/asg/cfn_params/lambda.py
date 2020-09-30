@@ -53,20 +53,26 @@ def lambda_handler(event, context):
             min_size = int(event["ResourceProperties"]["MinSize"])
             max_size = int(event["ResourceProperties"]["MaxSize"])
 
-            min_instances_in_service = int(event["ResourceProperties"]["MinInstancesInService"])
+            min_instances_in_service = int(
+                event["ResourceProperties"]["MinInstancesInService"]
+            )
             if min_instances_in_service < 0:
 
                 # CloudFormation tries to keep a specified number of instances
                 # in-service while replacing instances. Try to use the current
                 # number of running instances.
                 min_instances_in_service = get_desired_capacity(AUTO_SCALING_GROUP_NAME)
-                print(f"Using desired capacity for MinInstancesInService={min_instances_in_service}")
+                print(
+                    f"Using desired capacity for MinInstancesInService={min_instances_in_service}"
+                )
 
                 # Unless it's below the minimum size of the ASG,
                 # in which case try to use that.
                 if min_instances_in_service < min_size:
                     min_instances_in_service = min_size
-                    print(f"Desired capacity too low, set MinInstancesInService={min_instances_in_service}")
+                    print(
+                        f"Desired capacity too low, set MinInstancesInService={min_instances_in_service}"
+                    )
 
                 # The number can't be the maximum size of the ASG because
                 # it needs to be allowed to terminate instances (bringing
@@ -76,7 +82,9 @@ def lambda_handler(event, context):
                         min_instances_in_service = max_size - 1
                     else:
                         min_instances_in_service = 0
-                    print(f"Desired capacity too high, set MinInstancesInService={min_instances_in_service}")
+                    print(
+                        f"Desired capacity too high, set MinInstancesInService={min_instances_in_service}"
+                    )
 
         response_data = {
             "ImageId": image_id,

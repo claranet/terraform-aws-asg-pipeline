@@ -31,9 +31,12 @@ data "aws_iam_policy_document" "cloudformation" {
   }
 
   statement {
-    sid       = "InvokeParamsLambda"
-    actions   = ["lambda:Invoke*"]
-    resources = [module.cfn_params_lambda.arn]
+    sid     = "InvokeLambda"
+    actions = ["lambda:Invoke*"]
+    resources = [
+      module.cfn_params_lambda.arn,
+      module.cfn_wait_lambda.arn,
+    ]
   }
 
   # Allow describing various resources.

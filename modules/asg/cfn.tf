@@ -13,16 +13,12 @@ locals {
     AppVersionId   = aws_ssm_parameter.app_version_id[0].name
     AppVersionName = aws_ssm_parameter.app_version_name[0].name
   } : {}
-}
-
-resource "aws_cloudformation_stack" "this" {
-  name         = var.name
-  iam_role_arn = local.cfn_role_arn
-  template_body = trimspace(templatefile("${path.module}/cfn.yaml.tpl", {
+  cfn_template_body = trimspace(templatefile("${path.module}/cfn.yaml.tpl", {
     access_control        = random_string.access_control.result
     ami_pipeline          = var.ami_pipeline
     app_pipeline          = var.app_pipeline
     cfn_params_lambda_arn = module.cfn_params_lambda.arn
+    cfn_wait_lambda_arn   = module.cfn_wait_lambda.arn
     detailed_monitoring   = var.detailed_monitoring
     image_id              = var.image_id
     instance_profile_arn  = var.instance_profile_arn
@@ -44,5 +40,14 @@ resource "aws_cloudformation_stack" "this" {
     target_group_arns  = var.target_group_arns
     user_data          = var.user_data
   }))
-  parameters = merge(local.ami_pipeline_parameters, local.app_pipeline_parameters)
+  cfn_template_hash_parameters = {
+    TemplateHash = sha256(local.cfn_template_body)
+  }
+}
+
+resource "aws_cloudformation_stack" "this" {
+  name          = var.name
+  iam_role_arn  = local.cfn_role_arn
+  template_body = local.cfn_template_body
+  parameters    = merge(local.ami_pipeline_parameters, local.app_pipeline_parameters, local.cfn_template_hash_parameters)
 }
