@@ -34,6 +34,7 @@ def lambda_handler(event, context):
 
     try:
 
+        asg_arn = ""
         asg_name = event["ResourceProperties"]["AutoScalingGroupName"]
 
         while True:
@@ -42,6 +43,7 @@ def lambda_handler(event, context):
                 AutoScalingGroupNames=[asg_name],
             )
             for asg in response["AutoScalingGroups"]:
+                asg_arn = asg["AutoScalingGroupARN"]
                 for instance in asg["Instances"]:
                     if instance["LifecycleState"] == "Terminating:Wait":
                         wait = True
@@ -52,6 +54,7 @@ def lambda_handler(event, context):
             else:
                 break
 
+        response_data["AutoScalingGroupARN"] = asg_arn
         status = cfnresponse.SUCCESS
 
     finally:

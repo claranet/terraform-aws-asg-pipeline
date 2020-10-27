@@ -162,5 +162,7 @@ Outputs:
   AppVersionId:
     Value: !Ref AppVersionId
 %{ endif ~}
+  AutoScalingGroupARN:
+    Value: !GetAtt Wait.AutoScalingGroupARN
   AutoScalingGroupName:
     Value: !Ref AutoScalingGroup
