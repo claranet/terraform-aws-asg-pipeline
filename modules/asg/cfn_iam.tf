@@ -171,6 +171,7 @@ data "aws_iam_policy_document" "cloudformation" {
     sid = "ManageAutoScalingGroup"
     actions = [
       "autoscaling:AttachLoadBalancerTargetGroups",
+      "autoscaling:CreateOrUpdateTags",
       "autoscaling:DeleteAutoScalingGroup",
       "autoscaling:DeleteLifecycleHook",
       "autoscaling:DeleteTags",
