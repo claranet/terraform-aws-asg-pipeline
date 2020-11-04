@@ -4,7 +4,7 @@ variable "name" {
 }
 
 variable "kms_key_arn" {
-  description = "The KSM key to use for artifacts."
+  description = "The KMS key to use for artifacts."
   type        = string
 }
 
