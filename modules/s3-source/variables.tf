@@ -1,6 +1,19 @@
 variable "bucket" {
   description = "The name of the S3 bucket to create."
   type        = string
+  default     = null
+}
+
+variable "bucket_prefix" {
+  description = "The name prefix of the S3 bucket to create."
+  type        = string
+  default     = null
+}
+
+variable "force_destroy" {
+  description = "Allow 'terraform destroy' to delete objects when deleting the bucket."
+  type        = bool
+  default     = false
 }
 
 variable "key" {

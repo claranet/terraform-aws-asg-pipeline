@@ -2,6 +2,8 @@
 # and associated Lambda functions in the pipeline account.
 
 data "aws_iam_policy_document" "pipeline_assume_role" {
+  count = var.ami_pipeline || var.app_pipeline ? 1 : 0
+
   statement {
     actions = ["sts:AssumeRole"]
     principals {
@@ -12,17 +14,22 @@ data "aws_iam_policy_document" "pipeline_assume_role" {
 }
 
 data "aws_iam_policy_document" "pipeline" {
-  statement {
-    sid = "AppBucket"
-    actions = [
-      "s3:DeleteObjectVersion",
-      "s3:ListBucket*",
-      "s3:PutObject*",
-    ]
-    resources = [
-      aws_s3_bucket.app.arn,
-      "${aws_s3_bucket.app.arn}/*",
-    ]
+  count = var.ami_pipeline || var.app_pipeline ? 1 : 0
+
+  dynamic "statement" {
+    for_each = toset(range(var.app_pipeline ? 1 : 0))
+    content {
+      sid = "AppBucket"
+      actions = [
+        "s3:DeleteObjectVersion",
+        "s3:ListBucket*",
+        "s3:PutObject*",
+      ]
+      resources = [
+        aws_s3_bucket.app[0].arn,
+        "${aws_s3_bucket.app[0].arn}/*",
+      ]
+    }
   }
 
   statement {
@@ -57,21 +64,25 @@ data "aws_iam_policy_document" "pipeline" {
   statement {
     sid     = "ParameterStore"
     actions = ["ssm:PutParameter"]
-    resources = [
-      aws_ssm_parameter.app_version_id.arn,
-      aws_ssm_parameter.app_version_name.arn,
-      aws_ssm_parameter.image_id.arn,
-      aws_ssm_parameter.image_name.arn,
-    ]
+    resources = concat(
+      aws_ssm_parameter.app_version_id[*].arn,
+      aws_ssm_parameter.app_version_name[*].arn,
+      aws_ssm_parameter.image_id[*].arn,
+      aws_ssm_parameter.image_name[*].arn,
+    )
   }
 }
 
 resource "aws_iam_role" "pipeline" {
+  count = var.ami_pipeline || var.app_pipeline ? 1 : 0
+
   name               = "${var.name}-pipeline"
-  assume_role_policy = data.aws_iam_policy_document.pipeline_assume_role.json
+  assume_role_policy = data.aws_iam_policy_document.pipeline_assume_role[0].json
 }
 
 resource "aws_iam_role_policy" "pipeline" {
-  role   = aws_iam_role.pipeline.name
-  policy = data.aws_iam_policy_document.pipeline.json
+  count = var.ami_pipeline || var.app_pipeline ? 1 : 0
+
+  role   = aws_iam_role.pipeline[0].name
+  policy = data.aws_iam_policy_document.pipeline[0].json
 }

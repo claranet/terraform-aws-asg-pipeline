@@ -1,4 +1,6 @@
 black==19.10b0
+boto-source-profile-mfa==0.0.11
 diagrams==0.16.0
 flake8==3.8.2
 isort==4.3.21
+pretf[aws]==0.7.0

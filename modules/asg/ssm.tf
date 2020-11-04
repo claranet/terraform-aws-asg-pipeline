@@ -1,7 +1,9 @@
 resource "aws_ssm_parameter" "app_version_id" {
+  count = var.app_pipeline ? 1 : 0
+
   name  = "/${var.name}/app-version-id"
   type  = "String"
-  value = var.app_version_id
+  value = "-"
 
   lifecycle {
     ignore_changes = [value]
@@ -9,9 +11,11 @@ resource "aws_ssm_parameter" "app_version_id" {
 }
 
 resource "aws_ssm_parameter" "app_version_name" {
+  count = var.app_pipeline ? 1 : 0
+
   name  = "/${var.name}/app-version-name"
   type  = "String"
-  value = var.app_version_name
+  value = "-"
 
   lifecycle {
     ignore_changes = [value]
@@ -19,9 +23,11 @@ resource "aws_ssm_parameter" "app_version_name" {
 }
 
 resource "aws_ssm_parameter" "image_id" {
+  count = var.ami_pipeline ? 1 : 0
+
   name  = "/${var.name}/image-id"
   type  = "String"
-  value = var.image_id
+  value = "-"
 
   lifecycle {
     ignore_changes = [value]
@@ -29,9 +35,11 @@ resource "aws_ssm_parameter" "image_id" {
 }
 
 resource "aws_ssm_parameter" "image_name" {
+  count = var.ami_pipeline ? 1 : 0
+
   name  = "/${var.name}/image-name"
   type  = "String"
-  value = var.image_name
+  value = "-"
 
   lifecycle {
     ignore_changes = [value]

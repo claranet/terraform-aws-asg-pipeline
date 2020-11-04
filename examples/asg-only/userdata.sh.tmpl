@@ -1,0 +1,29 @@
+#!/bin/bash
+set -xeuo pipefail
+
+# Ensure packages packages are installed.
+yum install -y awscli httpd
+
+# Get instance details.
+instance_id=$(curl -sS http://169.254.169.254/latest/meta-data/instance-id)
+region=$(curl -sS http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/.$//')
+asg_name=$(aws ec2 describe-tags --region $region --filters "Name=resource-id,Values=$instance_id" --query "Tags[?Key=='aws:autoscaling:groupName'].Value" --output text)
+
+# Add debug details to the web site.
+image_id=$(aws ec2 describe-instances --region $region --instance-id $instance_id  --query "Reservations[0].Instances[0].ImageId" --output text)
+echo "ImageId: $image_id" > /var/www/html/index.html
+
+# Start the web server and wait for it.
+systemctl start httpd
+until curl -sS http://127.0.0.1/; do
+    printf '.'
+    sleep 1
+done
+
+# Complete the lifecycle hook action to put the instance in service.
+aws autoscaling complete-lifecycle-action \
+    --region $region \
+    --auto-scaling-group-name $asg_name \
+    --lifecycle-hook-name ${lifecycle_hook_name} \
+    --instance-id $instance_id \
+    --lifecycle-action-result CONTINUE

@@ -1,22 +1,22 @@
 # Create a Lambda function to tell CloudFormation when an auto
 # scaling group instance is healthy according to its target groups.
 
-module "signal_resource_lambda" {
+module "cfn_signal_lambda" {
   source  = "raymondbutcher/lambda-builder/aws"
-  version = "1.0.2"
+  version = "1.1.0"
 
-  function_name = "${var.name}-signal-resource"
-  handler       = "signal_resource.lambda_handler"
+  function_name = "${var.name}-cfn-signal"
+  handler       = "lambda.lambda_handler"
   runtime       = "python3.7"
   memory_size   = 128
   timeout       = 60 * 15
 
   build_mode = "FILENAME"
-  source_dir = "${path.module}/lambda"
-  filename   = "${path.module}/lambda.zip"
+  source_dir = "${path.module}/cfn_signal"
+  filename   = "${path.module}/cfn_signal_lambda.zip"
 
   role_cloudwatch_logs       = true
-  role_custom_policies       = [data.aws_iam_policy_document.signal_resource_lambda.json]
+  role_custom_policies       = [data.aws_iam_policy_document.cfn_signal_lambda.json]
   role_custom_policies_count = 1
 
   environment = {
@@ -28,7 +28,7 @@ module "signal_resource_lambda" {
   }
 }
 
-data "aws_iam_policy_document" "signal_resource_lambda" {
+data "aws_iam_policy_document" "cfn_signal_lambda" {
   statement {
     effect    = "Allow"
     actions   = ["elasticloadbalancing:DescribeTargetGroups", "elasticloadbalancing:DescribeTargetHealth"]
@@ -44,8 +44,8 @@ data "aws_iam_policy_document" "signal_resource_lambda" {
 
 # Invoke the function for each instance launched by the auto scaling group.
 
-resource "aws_cloudwatch_event_rule" "signal_resource" {
-  name = "${var.name}-signal-resource"
+resource "aws_cloudwatch_event_rule" "cfn_signal" {
+  name = module.cfn_signal_lambda.function_name
   event_pattern = jsonencode({
     source      = ["aws.autoscaling"]
     detail-type = ["EC2 Instance Launch Successful"]
@@ -55,16 +55,16 @@ resource "aws_cloudwatch_event_rule" "signal_resource" {
   })
 }
 
-resource "aws_cloudwatch_event_target" "signal_resource" {
+resource "aws_cloudwatch_event_target" "cfn_signal" {
   target_id = "lambda"
-  rule      = aws_cloudwatch_event_rule.signal_resource.name
-  arn       = module.signal_resource_lambda.arn
+  rule      = aws_cloudwatch_event_rule.cfn_signal.name
+  arn       = module.cfn_signal_lambda.arn
 }
 
-resource "aws_lambda_permission" "signal_resource" {
+resource "aws_lambda_permission" "cfn_signal" {
   statement_id  = "cloudwatch-event-rule"
   action        = "lambda:InvokeFunction"
-  function_name = module.signal_resource_lambda.function_name
+  function_name = module.cfn_signal_lambda.function_name
   principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.signal_resource.arn
+  source_arn    = aws_cloudwatch_event_rule.cfn_signal.arn
 }

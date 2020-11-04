@@ -2,22 +2,35 @@
 # and associated resource. It uses SSM parameters as inputs to control
 # the AMI and app version used by the EC2 instances in the ASG.
 
-resource "aws_cloudformation_stack" "this" {
-  name         = var.name
-  iam_role_arn = local.cfn_role_arn
-  template_body = trimspace(templatefile("${path.module}/cfn.yaml.tpl", {
-    access_control       = random_string.access_control.result
-    detailed_monitoring  = var.detailed_monitoring
-    instance_profile_arn = var.instance_profile_arn
-    instance_type        = var.instance_type
-    key_name             = var.key_name
-    lifecycle_hooks      = var.lifecycle_hooks
-    max_size             = var.max_size
-    min_size             = var.min_size
-    name                 = var.name
+locals {
+  ami_pipeline_parameters = var.ami_pipeline ? {
+    ImageId   = aws_ssm_parameter.image_id[0].name
+    ImageName = aws_ssm_parameter.image_name[0].name
+    } : {
+    ImageId = var.image_id
+  }
+  app_pipeline_parameters = var.app_pipeline ? {
+    AppVersionId   = aws_ssm_parameter.app_version_id[0].name
+    AppVersionName = aws_ssm_parameter.app_version_name[0].name
+  } : {}
+  cfn_template_body = trimspace(templatefile("${path.module}/cfn.yaml.tpl", {
+    access_control        = random_string.access_control.result
+    ami_pipeline          = var.ami_pipeline
+    app_pipeline          = var.app_pipeline
+    cfn_params_lambda_arn = module.cfn_params_lambda.arn
+    cfn_wait_lambda_arn   = module.cfn_wait_lambda.arn
+    detailed_monitoring   = var.detailed_monitoring
+    image_id              = var.image_id
+    instance_profile_arn  = var.instance_profile_arn
+    instance_type         = var.instance_type
+    key_name              = var.key_name
+    lifecycle_hooks       = var.lifecycle_hooks
+    max_size              = var.max_size
+    min_size              = var.min_size
+    name                  = var.name
     rolling_update_policy = merge({
       MaxBatchSize                  = var.max_size
-      MinInstancesInService         = min(var.min_size, var.max_size - 1)
+      MinInstancesInService         = -1
       MinSuccessfulInstancesPercent = 100
       PauseTime                     = "PT1H"
     }, var.rolling_update_policy)
@@ -27,10 +40,14 @@ resource "aws_cloudformation_stack" "this" {
     target_group_arns  = var.target_group_arns
     user_data          = var.user_data
   }))
-  parameters = {
-    AppVersionId   = aws_ssm_parameter.app_version_id.name
-    AppVersionName = aws_ssm_parameter.app_version_name.name
-    ImageId        = aws_ssm_parameter.image_id.name
-    ImageName      = aws_ssm_parameter.image_name.name
+  cfn_template_hash_parameters = {
+    TemplateHash = sha256(local.cfn_template_body)
   }
+}
+
+resource "aws_cloudformation_stack" "this" {
+  name          = var.name
+  iam_role_arn  = local.cfn_role_arn
+  template_body = local.cfn_template_body
+  parameters    = merge(local.ami_pipeline_parameters, local.app_pipeline_parameters, local.cfn_template_hash_parameters)
 }

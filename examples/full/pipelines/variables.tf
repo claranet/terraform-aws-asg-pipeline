@@ -1,16 +1,5 @@
 variable "name" {
-  description = "The pipeline name."
-  type        = string
-}
-
-variable "kms_key_arn" {
-  description = "The KMS key to use for artifacts."
-  type        = string
-}
-
-variable "source_location" {
-  description = "The pipeline S3 source location. The pipeline will start when a file is uploaded here."
-  type        = object({ bucket = string, key = string })
+  type = string
 }
 
 variable "targets" {
@@ -52,9 +41,4 @@ variable "targets" {
       })
     })
   }))
-}
-
-variable "type" {
-  description = "The type of pipeline to create, either 'ami' or 'app'."
-  type        = string
 }
