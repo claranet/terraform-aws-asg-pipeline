@@ -19,11 +19,10 @@ variable "force_destroy" {
 variable "key" {
   description = "The key of the S3 object. A user will be created with permission to upload to this location. The pipeline should use this location as its source."
   type        = string
-  default     = "app.zip"
 }
 
 variable "user_name" {
-  description = "The name of the IAM user to create. This defaults to the bucket name when not provided."
+  description = "The name of the IAM user to create. If not provided, no user is created."
   type        = string
   default     = null
 }
