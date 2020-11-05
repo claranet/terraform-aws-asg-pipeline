@@ -23,7 +23,7 @@ variable "key" {
 }
 
 variable "user_name" {
-  description = "The name of the IAM user to create. This defaults to the bucket name when not provided."
+  description = "The name of the IAM user to create. If not provided, no user is created."
   type        = string
   default     = null
 }
