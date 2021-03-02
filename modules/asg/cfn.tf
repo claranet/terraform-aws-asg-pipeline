@@ -21,11 +21,12 @@ resource "aws_cloudformation_stack" "this" {
       MinSuccessfulInstancesPercent = 100
       PauseTime                     = "PT1H"
     }, var.rolling_update_policy)
-    security_group_ids = var.security_group_ids
-    subnet_ids         = var.subnet_ids
-    tags               = var.tags
-    target_group_arns  = var.target_group_arns
-    user_data          = var.user_data
+    security_group_ids       = var.security_group_ids
+    subnet_ids               = var.subnet_ids
+    tags                     = var.tags
+    propagate_tags_at_launch = var.propagate_tags_at_launch
+    target_group_arns        = var.target_group_arns
+    user_data                = var.user_data
   }))
   parameters = {
     AppVersionId   = aws_ssm_parameter.app_version_id.name

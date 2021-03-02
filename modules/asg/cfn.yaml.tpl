@@ -52,7 +52,7 @@ Resources:
 %{ for key, value in tags ~}
       - Key: "${key}"
         Value: "${value}"
-        PropagateAtLaunch: false
+        PropagateAtLaunch: ${propagate_tags_at_launch}
 %{ endfor ~}
       TargetGroupARNs: ${jsonencode(target_group_arns)}
 %{ if length(subnet_ids) > 0 ~}

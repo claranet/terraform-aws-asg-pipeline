@@ -100,6 +100,12 @@ variable "tags" {
   default     = {}
 }
 
+variable "propagate_tags_at_launch" {
+  description = "Boolean to state whether ASG tags should be propagated to launched EC2s."
+  type        = bool
+  default     = false
+}
+
 variable "target_group_arns" {
   description = "A list of target groups, for use with load balancers."
   type        = list(string)
