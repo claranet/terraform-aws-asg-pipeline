@@ -159,6 +159,7 @@ data "aws_iam_policy_document" "cloudformation" {
     sid = "ManageAutoScalingGroup"
     actions = [
       "autoscaling:AttachLoadBalancerTargetGroups",
+      "autoscaling:CreateOrUpdateTags",
       "autoscaling:DeleteAutoScalingGroup",
       "autoscaling:DeleteLifecycleHook",
       "autoscaling:DeleteTags",
@@ -170,7 +171,7 @@ data "aws_iam_policy_document" "cloudformation" {
       "autoscaling:SetDesiredCapacity",
       "autoscaling:SuspendProcesses",
       "autoscaling:TerminateInstanceInAutoScalingGroup",
-      "autoscaling:UpdateAutoScalingGroup",
+      "autoscaling:UpdateAutoScalingGroup"
     ]
     resources = ["*"]
     condition {
