@@ -1,9 +1,3 @@
-variable "enabled" {
-  description = "Enable or disable the resources"
-  type        = bool
-  default     = true
-}
-
 variable "name" {
   description = "The name prefix for resources."
   type        = string

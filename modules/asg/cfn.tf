@@ -17,8 +17,8 @@ locals {
     access_control        = random_string.access_control.result
     ami_pipeline          = var.ami_pipeline
     app_pipeline          = var.app_pipeline
-    cfn_params_lambda_arn = module.cfn_params_lambda[0].arn
-    cfn_wait_lambda_arn   = module.cfn_wait_lambda[0].arn
+    cfn_params_lambda_arn = module.cfn_params_lambda.arn
+    cfn_wait_lambda_arn   = module.cfn_wait_lambda.arn
     detailed_monitoring   = var.detailed_monitoring
     image_id              = var.image_id
     instance_profile_arn  = var.instance_profile_arn
@@ -46,7 +46,6 @@ locals {
 }
 
 resource "aws_cloudformation_stack" "this" {
-  count         = var.enabled ? 1 : 0
   name          = var.name
   iam_role_arn  = local.cfn_role_arn
   template_body = local.cfn_template_body

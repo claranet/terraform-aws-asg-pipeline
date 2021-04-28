@@ -5,8 +5,6 @@ module "cfn_signal_lambda" {
   source  = "raymondbutcher/lambda-builder/aws"
   version = "1.1.0"
 
-  enabled = var.enabled
-
   function_name = "${var.name}-cfn-signal"
   handler       = "lambda.lambda_handler"
   runtime       = "python3.7"
@@ -18,7 +16,7 @@ module "cfn_signal_lambda" {
   filename   = "${path.module}/cfn_signal_lambda.zip"
 
   role_cloudwatch_logs       = true
-  role_custom_policies       = [data.aws_iam_policy_document.cfn_signal_lambdai[0].json]
+  role_custom_policies       = [data.aws_iam_policy_document.cfn_signal_lambda.json]
   role_custom_policies_count = 1
 
   environment = {
@@ -31,7 +29,6 @@ module "cfn_signal_lambda" {
 }
 
 data "aws_iam_policy_document" "cfn_signal_lambda" {
-  count = var.enabled ? 1 : 0
   statement {
     effect    = "Allow"
     actions   = ["elasticloadbalancing:DescribeTargetGroups", "elasticloadbalancing:DescribeTargetHealth"]
@@ -48,8 +45,7 @@ data "aws_iam_policy_document" "cfn_signal_lambda" {
 # Invoke the function for each instance launched by the auto scaling group.
 
 resource "aws_cloudwatch_event_rule" "cfn_signal" {
-  count = var.enabled ? 1 : 0
-  name  = module.cfn_signal_lambda[0].function_name
+  name = module.cfn_signal_lambda.function_name
   event_pattern = jsonencode({
     source      = ["aws.autoscaling"]
     detail-type = ["EC2 Instance Launch Successful"]
@@ -60,17 +56,15 @@ resource "aws_cloudwatch_event_rule" "cfn_signal" {
 }
 
 resource "aws_cloudwatch_event_target" "cfn_signal" {
-  count     = var.enabled ? 1 : 0
   target_id = "lambda"
-  rule      = aws_cloudwatch_event_rule.cfn_signal[0].name
+  rule      = aws_cloudwatch_event_rule.cfn_signal.name
   arn       = module.cfn_signal_lambda.arn
 }
 
 resource "aws_lambda_permission" "cfn_signal" {
-  count         = var.enabled ? 1 : 0
   statement_id  = "cloudwatch-event-rule"
   action        = "lambda:InvokeFunction"
-  function_name = module.cfn_signal_lambda[0].function_name
+  function_name = module.cfn_signal_lambda.function_name
   principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.cfn_signal[0].arn
+  source_arn    = aws_cloudwatch_event_rule.cfn_signal.arn
 }
