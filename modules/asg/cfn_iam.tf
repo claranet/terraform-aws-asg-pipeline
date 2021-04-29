@@ -156,7 +156,7 @@ data "aws_iam_policy_document" "cloudformation" {
     condition {
       test     = "StringEquals"
       variable = "aws:ResourceTag/AccessControl"
-      values   = [random_string.access_control.result]
+      values   = [random_string.access_control[0].result]
     }
     condition {
       test     = "ForAnyValue:StringEquals"
@@ -166,7 +166,7 @@ data "aws_iam_policy_document" "cloudformation" {
     condition {
       test     = "StringEquals"
       variable = "aws:RequestTag/AccessControl"
-      values   = [random_string.access_control.result]
+      values   = [random_string.access_control[0].result]
     }
   }
 
@@ -192,7 +192,7 @@ data "aws_iam_policy_document" "cloudformation" {
     condition {
       test     = "StringEquals"
       variable = "aws:ResourceTag/AccessControl"
-      values   = [random_string.access_control.result]
+      values   = [random_string.access_control[0].result]
     }
   }
 }
