@@ -22,7 +22,7 @@ module "cfn_params_lambda" {
   filename   = "${path.module}/cfn_params_lambda.zip"
 
   role_cloudwatch_logs       = true
-  role_custom_policies       = [data.aws_iam_policy_document.cfn_params_lambda[0].json]
+  role_custom_policies       = var.enabled ? [data.aws_iam_policy_document.cfn_params_lambda[0].json] : []
   role_custom_policies_count = 1
 
   environment = {

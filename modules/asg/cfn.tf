@@ -14,7 +14,7 @@ locals {
     AppVersionName = aws_ssm_parameter.app_version_name[0].name
   } : {}
   cfn_template_body = trimspace(templatefile("${path.module}/cfn.yaml.tpl", {
-    access_control        = random_string.access_control[0].result
+    access_control        = var.enabled ? random_string.access_control[0].result : ""
     ami_pipeline          = var.ami_pipeline
     app_pipeline          = var.app_pipeline
     cfn_params_lambda_arn = module.cfn_params_lambda[0].arn
