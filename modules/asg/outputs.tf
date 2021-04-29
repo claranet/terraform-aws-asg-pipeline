@@ -8,12 +8,12 @@ output "app_location" {
 
 output "asg_arn" {
   description = "The Auto Scaling Group ARN."
-  value       = lookup(aws_cloudformation_stack.this.outputs, "AutoScalingGroupARN", "")
+  value       = lookup(aws_cloudformation_stack.this[0].outputs, "AutoScalingGroupARN", "")
 }
 
 output "asg_name" {
   description = "The Auto Scaling Group name."
-  value       = lookup(aws_cloudformation_stack.this.outputs, "AutoScalingGroupName", "")
+  value       = lookup(aws_cloudformation_stack.this[0].outputs, "AutoScalingGroupName", "")
 }
 
 output "pipeline_target" {
@@ -28,12 +28,12 @@ output "pipeline_target" {
     }
     auto_deploy = var.pipeline_auto_deploy
     cfn_role = {
-      arn = aws_iam_role.cloudformation.arn
+      arn = aws_iam_role.cloudformation[0].arn
     }
     cfn_stack = {
-      arn    = aws_cloudformation_stack.this.id
-      name   = aws_cloudformation_stack.this.name
-      params = aws_cloudformation_stack.this.parameters
+      arn    = aws_cloudformation_stack.this[0].id
+      name   = aws_cloudformation_stack.this[0].name
+      params = aws_cloudformation_stack.this[0].parameters
     }
     name = var.pipeline_target_name
     ssm_params = {
