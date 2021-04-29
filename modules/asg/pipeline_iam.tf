@@ -1,8 +1,11 @@
 # This IAM role will be used by CodePipeline pipelines
 # and associated Lambda functions in the pipeline account.
+#
+# According to the Terraform documentation at https://www.terraform.io/docs/language/expressions/operators.html
+# the && is processed before the ||
 
 data "aws_iam_policy_document" "pipeline_assume_role" {
-  count = var.ami_pipeline || var.app_pipeline ? 1 : 0
+  count = var.ami_pipeline && var.enabled || var.app_pipeline && var.enabled ? 1 : 0
 
   statement {
     actions = ["sts:AssumeRole"]
@@ -14,7 +17,7 @@ data "aws_iam_policy_document" "pipeline_assume_role" {
 }
 
 data "aws_iam_policy_document" "pipeline" {
-  count = var.ami_pipeline || var.app_pipeline ? 1 : 0
+  count = var.ami_pipeline && var.enabled || var.app_pipeline && var.enabled ? 1 : 0
 
   dynamic "statement" {
     for_each = toset(range(var.app_pipeline ? 1 : 0))
@@ -58,7 +61,7 @@ data "aws_iam_policy_document" "pipeline" {
     sid       = "IAM"
     effect    = "Allow"
     actions   = ["iam:PassRole"]
-    resources = [aws_iam_role.cloudformation.arn]
+    resources = [aws_iam_role.cloudformation[0].arn]
   }
 
   statement {
@@ -74,14 +77,14 @@ data "aws_iam_policy_document" "pipeline" {
 }
 
 resource "aws_iam_role" "pipeline" {
-  count = var.ami_pipeline || var.app_pipeline ? 1 : 0
+  count = var.ami_pipeline && var.enabled || var.app_pipeline && var.enabled ? 1 : 0
 
   name               = "${var.name}-pipeline"
   assume_role_policy = data.aws_iam_policy_document.pipeline_assume_role[0].json
 }
 
 resource "aws_iam_role_policy" "pipeline" {
-  count = var.ami_pipeline || var.app_pipeline ? 1 : 0
+  count = var.ami_pipeline && var.enabled || var.app_pipeline && var.enabled ? 1 : 0
 
   role   = aws_iam_role.pipeline[0].name
   policy = data.aws_iam_policy_document.pipeline[0].json

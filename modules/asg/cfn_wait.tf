@@ -5,6 +5,8 @@ module "cfn_wait_lambda" {
   source  = "raymondbutcher/lambda-builder/aws"
   version = "1.1.0"
 
+  enabled = var.enabled
+
   function_name = "${var.name}-cfn-wait"
   handler       = "lambda.lambda_handler"
   runtime       = "python3.7"
@@ -21,6 +23,7 @@ module "cfn_wait_lambda" {
 }
 
 data "aws_iam_policy_document" "cfn_wait_lambda" {
+  count = var.enabled ? 1 : 0
   statement {
     effect    = "Allow"
     actions   = ["autoscaling:DescribeAutoScalingGroups"]

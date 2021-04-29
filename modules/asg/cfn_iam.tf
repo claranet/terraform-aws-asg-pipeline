@@ -1,8 +1,10 @@
 data "aws_iam_instance_profile" "this" {
-  name = split("/", var.instance_profile_arn)[1]
+  count = var.enabled ? 1 : 0
+  name  = split("/", var.instance_profile_arn)[1]
 }
 
 data "aws_iam_policy_document" "cloudformation_assume_role" {
+  count = var.enabled ? 1 : 0
   statement {
     actions = ["sts:AssumeRole"]
 
@@ -14,6 +16,7 @@ data "aws_iam_policy_document" "cloudformation_assume_role" {
 }
 
 data "aws_iam_policy_document" "cloudformation" {
+  count = var.enabled ? 1 : 0
   # Allow reading the input parameters from SSM.
 
   dynamic "statement" {
@@ -106,7 +109,7 @@ data "aws_iam_policy_document" "cloudformation" {
     condition {
       test     = "StringEquals"
       variable = "aws:RequestTag/AccessControl"
-      values   = [random_string.access_control.result]
+      values   = [random_string.access_control[0].result]
     }
   }
 
@@ -127,7 +130,7 @@ data "aws_iam_policy_document" "cloudformation" {
     condition {
       test     = "StringEquals"
       variable = "aws:RequestTag/AccessControl"
-      values   = [random_string.access_control.result]
+      values   = [random_string.access_control[0].result]
     }
   }
 
@@ -136,7 +139,7 @@ data "aws_iam_policy_document" "cloudformation" {
   statement {
     sid       = "PassRole"
     actions   = ["iam:PassRole"]
-    resources = [data.aws_iam_instance_profile.this.role_arn]
+    resources = [data.aws_iam_instance_profile.this[0].role_arn]
   }
 
   # Allow managing auto scaling groups. It will include the AccessControl
@@ -195,13 +198,15 @@ data "aws_iam_policy_document" "cloudformation" {
 }
 
 resource "aws_iam_role" "cloudformation" {
+  count              = var.enabled ? 1 : 0
   name               = "${var.name}-cloudformation"
-  assume_role_policy = data.aws_iam_policy_document.cloudformation_assume_role.json
+  assume_role_policy = data.aws_iam_policy_document.cloudformation_assume_role[0].json
 }
 
 resource "aws_iam_role_policy" "cloudformation" {
-  role   = aws_iam_role.cloudformation.name
-  policy = data.aws_iam_policy_document.cloudformation.json
+  count  = var.enabled ? 1 : 0
+  role   = aws_iam_role.cloudformation[0].name
+  policy = data.aws_iam_policy_document.cloudformation[0].json
 }
 
 # CloudFormation will try to use the IAM role straight away,
@@ -209,14 +214,15 @@ resource "aws_iam_role_policy" "cloudformation" {
 # eventually consistent, so introduce a delay here.
 
 resource "time_sleep" "cloudformation_iam_role" {
+  count = var.enabled ? 1 : 0
   create_duration = "15s"
   triggers = {
-    arn         = aws_iam_role.cloudformation.arn
-    name        = aws_iam_role_policy.cloudformation.role         # depend on the policy attachment
-    policy_hash = sha1(aws_iam_role_policy.cloudformation.policy) # depend on the policy content
+    arn         = aws_iam_role.cloudformation[0].arn
+    name        = aws_iam_role_policy.cloudformation[0].role         # depend on the policy attachment
+    policy_hash = sha1(aws_iam_role_policy.cloudformation[0].policy) # depend on the policy content
   }
 }
 
 locals {
-  cfn_role_arn = time_sleep.cloudformation_iam_role.triggers["arn"]
+  cfn_role_arn = time_sleep.cloudformation_iam_role[0].triggers["arn"]
 }
