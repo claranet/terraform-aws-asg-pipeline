@@ -8,12 +8,12 @@ output "app_location" {
 
 output "asg_arn" {
   description = "The Auto Scaling Group ARN."
-  value       = var.enabled ? lookup(aws_cloudformation_stack.this[0].outputs, "AutoScalingGroupARN", "") : ""
+  value       = lookup(aws_cloudformation_stack.this[0].outputs, "AutoScalingGroupARN", "")
 }
 
 output "asg_name" {
   description = "The Auto Scaling Group name."
-  value       = var.enabled ? lookup(aws_cloudformation_stack.this[0].outputs, "AutoScalingGroupName", "") : ""
+  value       = lookup(aws_cloudformation_stack.this[0].outputs, "AutoScalingGroupName", "")
 }
 
 output "pipeline_target" {
