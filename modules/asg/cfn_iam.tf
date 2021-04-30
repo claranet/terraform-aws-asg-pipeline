@@ -224,5 +224,5 @@ resource "time_sleep" "cloudformation_iam_role" {
 }
 
 locals {
-  cfn_role_arn = time_sleep.cloudformation_iam_role[0].triggers["arn"]
+  cfn_role_arn = var.enabled ? time_sleep.cloudformation_iam_role[0].triggers["arn"] : ""
 }
