@@ -3,7 +3,7 @@
 
 module "signal_resource_lambda" {
   source  = "raymondbutcher/lambda-builder/aws"
-  version = "1.0.2"
+  version = "1.1.0"
 
   function_name = "${var.name}-signal-resource"
   handler       = "signal_resource.lambda_handler"
