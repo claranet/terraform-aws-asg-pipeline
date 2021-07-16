@@ -49,7 +49,7 @@ data "aws_iam_policy_document" "cfn_signal_lambda" {
 
 resource "aws_cloudwatch_event_rule" "cfn_signal" {
   count = var.enabled ? 1 : 0
-  name  = module.cfn_signal_lambda[0].function_name
+  name  = module.cfn_signal_lambda.function_name
   event_pattern = jsonencode({
     source      = ["aws.autoscaling"]
     detail-type = ["EC2 Instance Launch Successful"]
@@ -70,7 +70,7 @@ resource "aws_lambda_permission" "cfn_signal" {
   count         = var.enabled ? 1 : 0
   statement_id  = "cloudwatch-event-rule"
   action        = "lambda:InvokeFunction"
-  function_name = module.cfn_signal_lambda[0].function_name
+  function_name = module.cfn_signal_lambda.function_name
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.cfn_signal[0].arn
 }
