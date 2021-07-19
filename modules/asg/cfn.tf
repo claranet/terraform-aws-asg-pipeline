@@ -17,8 +17,8 @@ locals {
     access_control        = var.enabled ? random_string.access_control[0].result : ""
     ami_pipeline          = var.ami_pipeline
     app_pipeline          = var.app_pipeline
-    cfn_params_lambda_arn = module.cfn_params_lambda[0].arn
-    cfn_wait_lambda_arn   = module.cfn_wait_lambda[0].arn
+    cfn_params_lambda_arn = module.cfn_params_lambda.arn
+    cfn_wait_lambda_arn   = module.cfn_wait_lambda.arn
     detailed_monitoring   = var.detailed_monitoring
     image_id              = var.image_id
     instance_profile_arn  = var.instance_profile_arn
@@ -34,11 +34,12 @@ locals {
       MinSuccessfulInstancesPercent = 100
       PauseTime                     = "PT1H"
     }, var.rolling_update_policy)
-    security_group_ids = var.security_group_ids
-    subnet_ids         = var.subnet_ids
-    tags               = var.tags
-    target_group_arns  = var.target_group_arns
-    user_data          = var.user_data
+    security_group_ids    = var.security_group_ids
+    subnet_ids            = var.subnet_ids
+    tags                  = var.tags
+    target_group_arns     = var.target_group_arns
+    user_data             = var.user_data
+    block_device_mappings = var.block_device_mappings
   }))
   cfn_template_hash_parameters = {
     TemplateHash = sha256(local.cfn_template_body)

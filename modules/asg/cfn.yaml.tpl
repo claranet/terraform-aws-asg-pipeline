@@ -102,6 +102,9 @@ Resources:
           Arn: "${instance_profile_arn}"
         ImageId: !GetAtt Params.ImageId
         InstanceType: "${instance_type}"
+%{ if length(block_device_mappings) > 0 ~}
+        BlockDeviceMappings: ${jsonencode(block_device_mappings)}
+%{ endif ~}
 %{ if key_name != "" ~}
         KeyName: "${key_name}"
 %{ endif ~}
