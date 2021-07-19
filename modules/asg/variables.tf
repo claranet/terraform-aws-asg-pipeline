@@ -118,3 +118,9 @@ variable "user_data" {
   type        = string
   default     = ""
 }
+
+variable "block_device_mappings" {
+  description = "List of block devices for the instances."
+  type        = list(any)
+  default     = []
+}

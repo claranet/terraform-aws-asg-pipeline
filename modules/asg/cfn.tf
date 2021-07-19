@@ -34,11 +34,12 @@ locals {
       MinSuccessfulInstancesPercent = 100
       PauseTime                     = "PT1H"
     }, var.rolling_update_policy)
-    security_group_ids = var.security_group_ids
-    subnet_ids         = var.subnet_ids
-    tags               = var.tags
-    target_group_arns  = var.target_group_arns
-    user_data          = var.user_data
+    security_group_ids    = var.security_group_ids
+    subnet_ids            = var.subnet_ids
+    tags                  = var.tags
+    target_group_arns     = var.target_group_arns
+    user_data             = var.user_data
+    block_device_mappings = var.block_device_mappings
   }))
   cfn_template_hash_parameters = {
     TemplateHash = sha256(local.cfn_template_body)

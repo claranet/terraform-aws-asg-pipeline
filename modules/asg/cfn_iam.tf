@@ -214,7 +214,7 @@ resource "aws_iam_role_policy" "cloudformation" {
 # eventually consistent, so introduce a delay here.
 
 resource "time_sleep" "cloudformation_iam_role" {
-  count = var.enabled ? 1 : 0
+  count           = var.enabled ? 1 : 0
   create_duration = "15s"
   triggers = {
     arn         = aws_iam_role.cloudformation[0].arn
