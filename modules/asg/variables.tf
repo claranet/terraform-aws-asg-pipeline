@@ -19,6 +19,18 @@ variable "detailed_monitoring" {
   default     = false
 }
 
+variable "health_check_grace_period" {
+  description = "The amount of time, in seconds, that Amazon EC2 Auto Scaling waits before checking the health status of an EC2 instance that has come into service."
+  type        = number
+  default     = 0
+}
+
+variable "health_check_type" {
+  description = "The service to use for the health checks. The valid values are EC2 (default) and ELB."
+  type        = string
+  default     = "EC2"
+}
+
 variable "image_id" {
   description = "Initial AMI to use. Will be ignored after CodePipeline deploys a new version."
   default     = "ami-00b5b04854bca6596"
