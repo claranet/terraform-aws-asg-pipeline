@@ -43,6 +43,8 @@ Resources:
 %{ if length(subnet_ids) == 0 ~}
       AvailabilityZones: !GetAZs ""
 %{ endif ~}
+      HealthCheckGracePeriod: ${health_check_grace_period}
+      HealthCheckType: "${health_check_type}"
       LaunchTemplate:
         LaunchTemplateId: !Ref LaunchTemplate
         Version: !GetAtt LaunchTemplate.LatestVersionNumber

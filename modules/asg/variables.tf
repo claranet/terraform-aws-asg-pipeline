@@ -27,6 +27,18 @@ variable "detailed_monitoring" {
   default     = false
 }
 
+variable "health_check_grace_period" {
+  description = "The amount of time, in seconds, that Amazon EC2 Auto Scaling waits before checking the health status of an EC2 instance that has come into service."
+  type        = number
+  default     = 0
+}
+
+variable "health_check_type" {
+  description = "The service to use for the health checks. The valid values are EC2 (default) and ELB."
+  type        = string
+  default     = "EC2"
+}
+
 variable "image_id" {
   description = "AMI to use if the AMI pipeline is disabled."
   type        = string
